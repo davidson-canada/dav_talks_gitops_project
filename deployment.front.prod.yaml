@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: "Deployment"
+metadata:
+  name: "davtalks-gitops-front-production"
+  labels:
+    app: "davtalks-gitops-front-production"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: "davtalks-gitops-front-production"
+  template:
+    metadata:
+      labels:
+        app: "davtalks-gitops-front-production"
+    spec:
+      containers:
+      - name: "davtalks-gitops-front-production"
+        image: "nginx:1.7.9"
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "davtalks-gitops-front-production"
+spec:
+  type: LoadBalancer
+  selector:
+    app: "davtalks-gitops-front-production"
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

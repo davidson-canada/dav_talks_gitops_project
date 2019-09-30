@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: "Deployment"
+metadata:
+  name: "helix-front-staging"
+  labels:
+    run: "helix-front-staging"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: "helix-front-staging"
+  template:
+    metadata:
+      labels:
+        run: "helix-front-staging"
+    spec:
+      containers:
+      - name: "helix-front-staging"
+        image: "nginx:1.7.9"
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "helix-front-staging"
+spec:
+  type: NodePort
+  selector:
+    run: "helix-front-staging"
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: "extensions/v1beta1"
+kind: "Ingress"
+metadata:
+  name: "ingress-helix-front-staging"
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    kubernetes.io/ingress.class: "gce"
+spec:
+  tls:
+    - hosts:
+        - "helix.dav-poutine.ca"
+      secretName: "helix-dav-poutine-ca-autocert"
+  rules:
+    - http:
+        paths:
+          - path: "/*"
+            backend:
+              serviceName: "helix-front-staging"
+              servicePort: 80
